@@ -1,8 +1,24 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
+  const [deployment, setDeployment] = useState({});
+  const [loading, setLoading] = useState(true);
+  const fetchDeployment = async () => {
+    try {
+      const res = await fetch("/deployment");
+      const jsonRes = await res.json();
+      setDeployment(jsonRes);
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeployment();
+  }, []);
   return (
     <div className="App">
       <header className="App-header">
