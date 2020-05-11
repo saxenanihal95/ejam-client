@@ -11,6 +11,10 @@
   margin-bottom: 20px;
 }
 
+.DeleteButton {
+  margin-left: 20px;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
