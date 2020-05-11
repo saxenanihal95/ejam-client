@@ -1,40 +1,66 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import React, { useEffect } from "react";
+import { List, PageHeader, Timeline, Button } from "antd";
 import "./App.css";
+import { callGetDeploymenListApi } from "./actions/deploymentActions";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./reducers/types";
+
+interface IVersion {
+  name: String;
+}
+
+interface IDeployment {
+  url: String;
+  templateName: {
+    type: String;
+    unique: true;
+    required: true;
+    dropDups: true;
+  };
+  versions: Array<IVersion>;
+  deployedAt: Date;
+}
 
 function App() {
-  const [deployment, setDeployment] = useState({});
-  const [loading, setLoading] = useState(true);
-  const fetchDeployment = async () => {
-    try {
-      const res = await fetch("/deployment");
-      const jsonRes = await res.json();
-      setDeployment(jsonRes);
-      setLoading(false);
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
+  const dispatch = useDispatch();
+  const deployments = useSelector((state: RootState) => state.deployments);
   useEffect(() => {
-    fetchDeployment();
-  }, []);
+    dispatch(callGetDeploymenListApi());
+  }, [dispatch]);
+
+  const { deploymentList, deploymentListLoading } = deployments;
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <PageHeader
+        title="Deployments"
+        backIcon={false}
+        className="Header"
+        ghost={false}
+        extra={[
+          <Button key="1" type="primary">
+            Add Deployment
+          </Button>,
+        ]}
+      >
+        <List
+          itemLayout="horizontal"
+          dataSource={deploymentList}
+          loading={deploymentListLoading}
+          renderItem={(item) => (
+            <List.Item>
+              <div>
+                <h3 className="TemplateName">{item.templateName}</h3>
+                <Timeline>
+                  {item.versions.map((v) => (
+                    <Timeline.Item>{v.name}</Timeline.Item>
+                  ))}
+                </Timeline>
+              </div>
+            </List.Item>
+          )}
+        />
+      </PageHeader>
     </div>
   );
 }
